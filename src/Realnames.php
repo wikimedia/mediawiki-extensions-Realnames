@@ -26,11 +26,11 @@ namespace MediaWiki\Extension\Realnames;
 	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+use MediaWiki\MediaWikiServices;
 use OutputPage;
 use Skin;
 use Title;
 use User;
-use MediaWiki\MediaWikiServices;
 
 /**
  * >= 0.1
@@ -189,7 +189,7 @@ class Realnames {
 		// or his chosen format will not display a username at all
 		if ( empty( $m['realname'] ) === true && (
 			$GLOBALS['wgRealnamesBlank'] === false || strpos( $format, '$2' ) === false
-			) ) {
+		) ) {
 			$format = $GLOBALS['wgRealnamesStyles'][$styleBlankName];
 		}
 
@@ -198,7 +198,7 @@ class Realnames {
 			&& $m['username'] === $m['realname']
 			&& strpos( $format, '$2' ) !== false
 			&& strpos( $format, '$3' ) !== false
-			) {
+		) {
 			// we only do this if both username and realname will be displayed in
 			// the user's format
 			self::debug( __METHOD__, 'smart dupe detected' );
@@ -216,7 +216,7 @@ class Realnames {
 			str_replace( '_', ' ', $m['username'] ),
 			str_replace( '_', ' ', $m['realname'] ),
 			$m['linkend'],
-			] );
+		] );
 
 		self::debug( __METHOD__, 'replacing with ' . print_r( $text, true ) );
 
@@ -256,10 +256,10 @@ class Realnames {
 
 		// try to figure out the wiki language
 		// ! get language from the context somehow? (2011-09-26, ofb)
-	  	// Eric Richter, 20210626, $GLOBALS['wgContLang'] is no longer available
-	  	// This solution is copied from the ReplaceText extension
+		// Eric Richter, 20210626, $GLOBALS['wgContLang'] is no longer available
+		// This solution is copied from the ReplaceText extension
 		$lang = MediaWikiServices::getInstance()->getContentLanguage();
-	  
+
 		// user namespace's primary name in the wiki lang
 		$namespaces[] = $lang->getNsText( NS_USER );
 		$namespaces[] = $lang->getNsText( NS_USER_TALK );
@@ -286,10 +286,10 @@ class Realnames {
 		}
 
 		// Escape namespaces for use in regex delimited with '/'.
-                // Shouldn't do much for most namespaces.
+		// Shouldn't do much for most namespaces.
 		$namespaces = array_map(
-			function ($namespace) {
-				return preg_quote($namespace, '/');
+			static function ( $namespace ) {
+				return preg_quote( $namespace, '/' );
 			},
 			$namespaces
 		);
@@ -394,7 +394,7 @@ class Realnames {
 					'all' => $personal_urls['userpage']['text'],
 					'username' => $personal_urls['userpage']['text'],
 					'realname' => $GLOBALS['wgUser']->getRealname(),
-					];
+				];
 				$personal_urls['userpage']['text'] = self::replace( $m );
 			}
 		}
