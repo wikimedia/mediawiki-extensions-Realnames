@@ -28,8 +28,8 @@ namespace MediaWiki\Extension\Realnames;
 
 use MediaWiki\MediaWikiServices;
 use OutputPage;
+use RequestContext;
 use Skin;
-use Title;
 use User;
 
 /**
@@ -40,7 +40,7 @@ class Realnames {
 	/**
 	 * A cache of realnames for given users.
 	 *
-	 * @var \array
+	 * @var array
 	 * @since 2011-09-16, 0.1
 	 */
 	protected static $realnames = [];
@@ -64,9 +64,9 @@ class Realnames {
 	/**
 	 * checks a data set to see if we should proceed with the replacement.
 	 *
-	 * @param \array $matches keyed with regex matches
+	 * @param array $matches keyed with regex matches
 	 *
-	 * @return \string text to replace the match with
+	 * @return string text to replace the match with
 	 *
 	 * @since 2011-09-16, 0.1
 	 * @see   lookForBare() for regex
@@ -89,9 +89,9 @@ class Realnames {
 	/**
 	 * checks a data set to see if we should proceed with the replacement.
 	 *
-	 * @param \array $matches keyed with regex matches
+	 * @param array $matches keyed with regex matches
 	 *
-	 * @return \string text to replace the match with
+	 * @return string text to replace the match with
 	 *
 	 * @since 2011-09-16, 0.1
 	 * @see   lookForBare() for regex
@@ -137,13 +137,13 @@ class Realnames {
 	/**
 	 * formats the final string in the configured style to display the real name.
 	 *
-	 * @param \array $m keyed with strings called
+	 * @param array $m keyed with strings called
 	 *    \li<em>linkstart</em>
 	 *    \li<em>username</em>
 	 *    \li<em>realname</em>
 	 *    \li<em>linkend</em>
 	 *
-	 * @return \string formatted text to replace the match with
+	 * @return string formatted text to replace the match with
 	 *
 	 * @since 2011-09-16, 0.1
 	 * @see   $wgRealnamesLinkStyle
@@ -228,7 +228,8 @@ class Realnames {
 	 * this is a regex string.
 	 *
 	 * @param bool $encode
-	 * @return \string regex namespace options
+	 *
+	 * @return string regex namespace options
 	 *
 	 * @since 2011-09-22, 0.2
 	 */
@@ -313,7 +314,7 @@ class Realnames {
 	 * @param OutputPage &$out The OutputPage object.
 	 * @param Skin &$skin object that will be used to generate the page, added in 1.13.
 	 *
-	 * @return \bool true, continue hook processing
+	 * @return bool true, continue hook processing
 	 *
 	 * @since 2011-09-16, 0.1
 	 * @note  OutputPageBeforeHTML does not work for Special pages like RecentChanges or ActiveUsers
@@ -369,34 +370,45 @@ class Realnames {
 	}
 
 	/**
+	 * @param array &$userPageOpt
+	 */
+	private static function transformUsernameToRealname( &$userPageOpt ): void {
+		// replace the name of the logged-in user
+		if ( isset( $userPageOpt ) === true
+			&& isset( $userPageOpt['text'] ) === true ) {
+			// fake the match, we know it's there
+			$m = [
+				'all' => $userPageOpt['text'],
+				'username' => $userPageOpt['text'],
+				'realname' => RequestContext::getMain()->getAuthority()->getRealName(),
+			];
+			$userPageOpt['text'] = self::replace( $m );
+		}
+	}
+
+	/**
 	 * >= 0.2, change all usernames to realnames in url bar.
 	 * change all usernames to realnames in skin top right links bar
 	 *
-	 * @param \array &$personal_urls the array of URLs set up so far
-	 * @param Title $title the Title object of the current article
-	 * @param \SkinTemplate $skin
+	 * @param Skin $skin
+	 * @param array &$links
+	 * @phpcs:disable MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
 	 *
-	 * @return \bool true, continue hook processing
+	 * @return bool true, continue hook processing
 	 *
 	 * @since 2011-09-22, 0.2
 	 * @see   hook documentation http://www.mediawiki.org/wiki/Manual:Hooks/PersonalUrls
 	 * @note  does nothing for Timeless skin
 	 */
-	public static function hookPersonalUrls( &$personal_urls, $title, $skin ) {
+	public static function onSkinTemplateNavigation__Universal( $skin, &$links ) {
+		// phpcs:enable MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
+		// using // phpcs:ignore after docblock doesn't work, it shows
+		// MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
 		if ( $GLOBALS['wgRealnamesReplacements']['personnal'] === true ) {
 			self::debug( __METHOD__, 'searching personnal urls...' );
 
-			// replace the name of the logged in user
-			if ( isset( $personal_urls['userpage'] ) === true
-				&& isset( $personal_urls['userpage']['text'] ) === true ) {
-				// fake the match, we know it's there
-				$m = [
-					'all' => $personal_urls['userpage']['text'],
-					'username' => $personal_urls['userpage']['text'],
-					'realname' => $skin->getUser()->getRealname(),
-				];
-				$personal_urls['userpage']['text'] = self::replace( $m );
-			}
+			self::transformUsernameToRealname( $links['user-page']['userpage'] );
+			self::transformUsernameToRealname( $links['user-menu']['userpage'] );
 		}
 
 		return true;
@@ -405,10 +417,10 @@ class Realnames {
 	/**
 	 * scan and replace plain usernames of the form User:username into real names.
 	 *
-	 * @param \string $text to scan
-	 * @param \string $pattern to match, \bool false for default
+	 * @param string $text to scan
+	 * @param string $pattern to match, \bool false for default
 	 *
-	 * @return \string with realnames replaced in
+	 * @return string with realnames replaced in
 	 *
 	 * @since 2011-09-16, 0.1
 	 * @note  bug: we have problems with users with underscores (they become spaces) or spaces,
@@ -439,10 +451,10 @@ class Realnames {
 	/**
 	 * scan and replace username links into realname links.
 	 *
-	 * @param \string $text to scan
-	 * @param \string $pattern to match, \bool false for default
+	 * @param string $text to scan
+	 * @param string $pattern to match, bool false for default
 	 *
-	 * @return \string with realnames replaced in
+	 * @return string with realnames replaced in
 	 *
 	 * @since 2011-09-16, 0.1
 	 */
@@ -472,7 +484,7 @@ class Realnames {
 	/**
 	 * obtains user information based on a match for future replacement.
 	 *
-	 * @param \array $m keyed with strings called
+	 * @param array $m keyed with strings called
 	 *    \li<em>linkstart</em> (optional)
 	 *    \li<em>username</em>
 	 *    \li<em>realname</em> (optional)
