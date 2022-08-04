@@ -374,15 +374,15 @@ class Realnames {
 	 *
 	 * @param \array &$personal_urls the array of URLs set up so far
 	 * @param Title $title the Title object of the current article
+	 * @param \SkinTemplate $skin
 	 *
 	 * @return \bool true, continue hook processing
 	 *
 	 * @since 2011-09-22, 0.2
 	 * @see   hook documentation http://www.mediawiki.org/wiki/Manual:Hooks/PersonalUrls
-	 * @note  requires MediaWiki 1.7.0
 	 * @note  does nothing for Timeless skin
 	 */
-	public static function hookPersonalUrls( &$personal_urls, $title ) {
+	public static function hookPersonalUrls( &$personal_urls, $title, $skin ) {
 		if ( $GLOBALS['wgRealnamesReplacements']['personnal'] === true ) {
 			self::debug( __METHOD__, 'searching personnal urls...' );
 
@@ -393,7 +393,7 @@ class Realnames {
 				$m = [
 					'all' => $personal_urls['userpage']['text'],
 					'username' => $personal_urls['userpage']['text'],
-					'realname' => $GLOBALS['wgUser']->getRealname(),
+					'realname' => $skin->getUser()->getRealname(),
 				];
 				$personal_urls['userpage']['text'] = self::replace( $m );
 			}
