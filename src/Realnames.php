@@ -72,7 +72,7 @@ class Realnames {
 	 * @see   lookForBare() for regex
 	 */
 	protected static function checkBare( $matches ) {
-		// matches come from self::lookForBare()'s regular experession
+		// matches come from self::lookForBare()'s regular expression
 		$m = [
 			'all' => $matches[0],
 			'username' => $matches[1],
@@ -82,7 +82,7 @@ class Realnames {
 
 		// we do not currently do any checks on Bare replacements, a User: find is
 		// always valid but we could add one in the future, and the debug
-		// information is still conveniant and keeps things consistent with checkLink
+		// information is still convenient and keeps things consistent with checkLink
 		return self::replace( $m );
 	}
 
@@ -97,7 +97,7 @@ class Realnames {
 	 * @see   lookForBare() for regex
 	 */
 	protected static function checkLink( $matches ) {
-		// matches come from self::lookForLinks()'s regular experession
+		// matches come from self::lookForLinks()'s regular expression
 		$m = [
 			'all' => $matches[0],
 			'linkstart' => $matches[1],
