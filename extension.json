@@ -1,9 +1,9 @@
 {
    "name": "Realnames",
    "type": "parserhook",
-   "author": ["[http://ofbeaton.com/ Finlay Beaton]", "..."],
+   "author": ["[https://ofbeaton.com/ Finlay Beaton]", "..."],
    "version": "0.8.0",
-   "url": "http://www.mediawiki.org/wiki/Extension:Realnames",
+   "url": "https://www.mediawiki.org/wiki/Extension:Realnames",
    "description": "Displays a user's real name everywhere",
    "license-name": "BSD-2-Clause",
 	"requires": {
