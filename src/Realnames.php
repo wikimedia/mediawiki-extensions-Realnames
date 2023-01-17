@@ -464,7 +464,7 @@ class Realnames {
 		if ( empty( $pattern ) === true ) {
 			$pattern = '/(<a\b[^">]+href="[^">]+'
 				. self::getNamespacePrefixes( true )
-				. '([^"\\?\\&>]+)[^>]+>(?:<bdi>)?)'
+				. '([^"\\?\\&>]+)[^>]+>(?:\s*<bdi>)?)'
 				. self::getNamespacePrefixes()
 				. '?([^>]+)((?:<\\/bdi>)?<\\/a>)/';
 		}
