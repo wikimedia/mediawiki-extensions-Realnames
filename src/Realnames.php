@@ -406,9 +406,15 @@ class Realnames {
 		// MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
 		if ( $GLOBALS['wgRealnamesReplacements']['personnal'] === true ) {
 			self::debug( __METHOD__, 'searching personnal urls...' );
-
-			self::transformUsernameToRealname( $links['user-page']['userpage'] );
-			self::transformUsernameToRealname( $links['user-menu']['userpage'] );
+			// We check isset here, because the mere act of passing this
+			// will cause it to be set to null, which will affect output
+			// for logged out users.
+			if ( isset( $links['user-page']['userpage'] ) ) {
+				self::transformUsernameToRealname( $links['user-page']['userpage'] );
+			}
+			if ( isset( $links['user-menu']['userpage'] ) ) {
+				self::transformUsernameToRealname( $links['user-menu']['userpage'] );
+			}
 		}
 
 		return true;
