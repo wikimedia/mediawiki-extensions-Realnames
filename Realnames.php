@@ -29,7 +29,3 @@ if ( defined( 'MEDIAWIKI' ) === false ) {
 }
 
 wfLoadExtension( 'Realnames' );
-wfWarn(
-	'Deprecated PHP entry point used for Realnames extension. Please use wfLoadExtension instead, ' .
-	'see https://www.mediawiki.org/wiki/Extension_registration for more details.'
-);

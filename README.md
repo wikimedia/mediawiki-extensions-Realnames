@@ -1,12 +1,12 @@
 # Realnames
 
-_Updated instructions and releases available at:_ https://www.mediawiki.org/wiki/Extension:Realnames
+_Updated instructions and releases available at:_ https://www.mediawiki.org/wiki/Extension:Realnames 
 
-This mediawiki extension attempts to add _realname_ to all _username_ links.
+This mediawiki extension attempts to add _realname_ to all _username_ links. 
 
-Modifies a page's html content right before display to keep the approach generic and simple. This means it works for most links and does not need special consideration with new hooks. Compatibility with other extensions should be very strong.
+Modifies a page's html content right before display to keep the approach generic and simple. This means it works for most links and does not need special consideration with new hooks. Compatibility with other extensions should be very strong. 
 
-This means it works on:
+This means it works on:  
 * Special:ListUsers
 * Special:RecentChanges (new and old)
 * Special:Search of the User: space
@@ -29,7 +29,7 @@ There is currently no way to preserve User: prefixes on links or text.
 
 The extension is considered in a usable state and feature complete. Issues are mostly possible testing or performance enhancements.
 
-This extension is used in corporate applications. As such, the authors are unlikely to update it on a regular basis, but instead when the corporate applications that use it run into problems. You should expect updates in the 5-10yr range.
+This extension is used in corporate applications. As such, the authors are unlikely to update it on a regular basis, but instead when the corporate applications that use it run into problems. You should expect updates in the 5-10yr range. 
 
 Issues and PRs will be monitored, and we will continue to work with the community to provide updates as they are contributed.
 
@@ -55,16 +55,16 @@ include_once("$IP/extensions/Realnames/Realnames.php");
 See [AdvancedConfiguration.md](AdvancedConfiguration.md) for finer control, including custom styles.
 
 ### $wgRealnamesLinkStyle [>=0.1]
-| Values          | Example                                    | Description                                                      |
-|-----------------|--------------------------------------------|------------------------------------------------------------------|
-| "standard"      | [mw305](User:mw305)                        | Provided for convenience, this is the default MediaWiki behavior |
-| "replace"       | [Martha Stewart](User:mw305)               |                                                                  |
-| "append"        | [mw305 \[Martha Stewart\]](User:mw305)     |                                                                  |
-| "reverse"       | [Martha Stewart \[mw305\]](User:mw305)     |                                                                  |
-| "dash"          | [mw305 &ndash; Martha Stewart](User:mw305) |                                                                  |
-| "dash-reverse"  | [Martha Stewart &ndash; mw305](User:mw305) |                                                                  |
-| "paren-append"  | [mw305 (Martha Stewart)](User:mw305)       |                                                                  |
-| "paren-reverse" | [Martha Stewart (mw305)](User:mw305)       | Default extension behaviour                                      |
+Values | Example | Description
+------ | ------- | -----------
+"standard" | [mw305](User:mw305) | Provided for convenience, this is the default MediaWiki behavior
+"replace" | [Martha Stewart](User:mw305)
+"append" | [mw305 \[Martha Stewart\]](User:mw305)
+"reverse" | [Martha Stewart \[mw305\]](User:mw305)
+"dash" | [mw305 &ndash; Martha Stewart](User:mw305)
+"dash-reverse" | [Martha Stewart &ndash; mw305](User:mw305)
+"paren-append" | [mw305 (Martha Stewart)](User:mw305)
+"paren-reverse" | [Martha Stewart (mw305)](User:mw305) | Default extension behaviour
 
 ## Testing
 * MediaWiki 1.32.0, 1.31.1 (LTS), 1.18.0, 1.17.1, 1.16.5, 1.15.5,
