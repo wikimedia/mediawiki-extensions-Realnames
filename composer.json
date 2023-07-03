@@ -1,5 +1,4 @@
 {
-	"name": "ofbeaton/mediawiki-realnames",
 	"license": "BSD-2-Clause",
 	"description": "attempts to add realname to all username links.",
 	"keywords": [
@@ -15,7 +14,7 @@
 		},
 		{
 			"name": "realnames Community",
-			"homepage": "https://github.com/ofbeaton/mediawiki-realnames/graphs/contributors"
+			"homepage": "https://github.com/wikimedia/mediawiki-extensions-Realnames/graphs/contributors"
 		}
 	],
 	"require-dev": {
