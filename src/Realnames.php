@@ -26,7 +26,7 @@ namespace MediaWiki\Extension\Realnames;
 	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-use MediaWiki\MediaWikiServices;
+use Language;
 use OutputPage;
 use RequestContext;
 use Skin;
@@ -63,6 +63,14 @@ class Realnames implements
 	 * @since 2019-03-10, 0.6
 	 */
 	protected static $namespacePrefixesEncoded = null;
+
+	private Language $lang;
+
+	public function __construct(
+		Language $lang
+	) {
+		$this->lang = $lang;
+	}
 
 	/**
 	 * checks a data set to see if we should proceed with the replacement.
@@ -236,7 +244,7 @@ class Realnames implements
 	 *
 	 * @since 2011-09-22, 0.2
 	 */
-	public static function getNamespacePrefixes( $encode = false ) {
+	public function getNamespacePrefixes( $encode = false ) {
 		if ( $encode === true ) {
 			$prefixes = self::$namespacePrefixesEncoded;
 		} else {
@@ -258,17 +266,11 @@ class Realnames implements
 		// add in user specified ones
 		$namespaces = array_merge( $namespaces, array_values( $GLOBALS['wgRealnamesNamespaces'] ) );
 
-		// try to figure out the wiki language
-		// ! get language from the context somehow? (2011-09-26, ofb)
-		// Eric Richter, 20210626, $GLOBALS['wgContLang'] is no longer available
-		// This solution is copied from the ReplaceText extension
-		$lang = MediaWikiServices::getInstance()->getContentLanguage();
-
 		// user namespace's primary name in the wiki lang
-		$namespaces[] = $lang->getNsText( NS_USER );
-		$namespaces[] = $lang->getNsText( NS_USER_TALK );
+		$namespaces[] = $this->lang->getNsText( NS_USER );
+		$namespaces[] = $this->lang->getNsText( NS_USER_TALK );
 
-		$nss = $lang->getNamespaceAliases();
+		$nss = $this->lang->getNamespaceAliases();
 
 		foreach ( $nss as $name => $space ) {
 			if ( in_array( $space, [ NS_USER, NS_USER_TALK ] ) === true ) {
@@ -331,11 +333,11 @@ class Realnames implements
 				// swap out the specific username from title
 				// this overcomes the problem lookForBare has with spaces and underscores in names
 				$reg = '/'
-					. self::getNamespacePrefixes()
+					. $this->getNamespacePrefixes()
 					. '\s*('
 					. preg_quote( $title->getText(), '/' )
 					. ')(?:\/.+)?/';
-				$bare = self::lookForBare(
+				$bare = $this->lookForBare(
 					$out->getPageTitle(),
 					$reg
 				);
@@ -343,19 +345,19 @@ class Realnames implements
 			}
 
 			// this should also affect the html head title
-			$out->setPageTitle( self::lookForBare( $out->getPageTitle() ) );
+			$out->setPageTitle( $this->lookForBare( $out->getPageTitle() ) );
 		}
 
 		if ( $GLOBALS['wgRealnamesReplacements']['subtitle'] === true ) {
 			// subtitle (say, on revision pages)
 			self::debug( __METHOD__, 'searching article subtitle...' );
-			$out->setSubtitle( self::lookForLinks( $out->getSubtitle() ) );
+			$out->setSubtitle( $this->lookForLinks( $out->getSubtitle() ) );
 		}
 
 		if ( $GLOBALS['wgRealnamesReplacements']['body'] === true ) {
 			// article html text
 			self::debug( __METHOD__, 'searching article body...' );
-			$out->mBodytext = self::lookForLinks( $out->getHTML() );
+			$out->mBodytext = $this->lookForLinks( $out->getHTML() );
 		}
 	}
 
@@ -421,11 +423,11 @@ class Realnames implements
 	 *    we tend to just strip the User: and leave the username, but we only modify the
 	 *    first word so some weird style might screw it up (2011-09-17, ofb)
 	 */
-	protected static function lookForBare( $text, $pattern = false ) {
+	protected function lookForBare( $text, $pattern = false ) {
 		if ( empty( $pattern ) === true ) {
 			// considered doing [^<]+ here to catch names with spaces or underscores,
 			// which works for most titles but is not universal
-			$pattern = '/' . self::getNamespacePrefixes() . '([^ \t]+)(\/.+)?/';
+			$pattern = '/' . $this->getNamespacePrefixes() . '([^ \t]+)(\/.+)?/';
 		}
 
 		self::debug( __METHOD__, 'pattern: ' . $pattern );
@@ -452,14 +454,14 @@ class Realnames implements
 	 *
 	 * @since 2011-09-16, 0.1
 	 */
-	protected static function lookForLinks( $text, $pattern = false ) {
-		self::debug( __METHOD__, 'before: ' . self::getNamespacePrefixes( false ) );
-		self::debug( __METHOD__, 'after: ' . self::getNamespacePrefixes( true ) );
+	protected function lookForLinks( $text, $pattern = false ) {
+		self::debug( __METHOD__, 'before: ' . $this->getNamespacePrefixes( false ) );
+		self::debug( __METHOD__, 'after: ' . $this->getNamespacePrefixes( true ) );
 		if ( empty( $pattern ) === true ) {
 			$pattern = '/(<a\b[^">]+href="[^">]+'
-				. self::getNamespacePrefixes( true )
+				. $this->getNamespacePrefixes( true )
 				. '([^"\\?\\&>]+)[^>]+>(?:\s*<bdi>)?)'
-				. self::getNamespacePrefixes()
+				. $this->getNamespacePrefixes()
 				. '?([^>]+)((?:<\\/bdi>)?<\\/a>)/';
 		}
 
