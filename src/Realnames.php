@@ -265,13 +265,7 @@ class Realnames {
 		$namespaces[] = $lang->getNsText( NS_USER );
 		$namespaces[] = $lang->getNsText( NS_USER_TALK );
 
-		// namespace aliases and gendered namespaces (1.18+) in the wiki's lang
-		// fallback for pre 1.16
-		if ( method_exists( $lang, 'getNamespaceAliases' ) === true ) {
-			$nss = $lang->getNamespaceAliases();
-		} else {
-			$nss = $GLOBALS['wgNamespaceAliases'];
-		}
+		$nss = $lang->getNamespaceAliases();
 
 		foreach ( $nss as $name => $space ) {
 			if ( in_array( $space, [ NS_USER, NS_USER_TALK ] ) === true ) {
@@ -322,12 +316,7 @@ class Realnames {
 	 * @see   hook documentation http://www.mediawiki.org/wiki/Manual:Hooks/BeforePageDisplay
 	 */
 	public static function hookBeforePageDisplay( &$out, &$skin = false ) {
-		// pre 1.16 no getTitle()
-		if ( method_exists( $out, 'getTitle' ) === true ) {
-			$title = $out->getTitle();
-		} else {
-			$title = $GLOBALS['wgTitle'];
-		}
+		$title = $out->getTitle();
 
 		if ( $GLOBALS['wgRealnamesReplacements']['title'] === true ) {
 			// article title
