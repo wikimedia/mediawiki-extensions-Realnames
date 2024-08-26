@@ -47,7 +47,7 @@ class Realnames implements
 	 * @var array
 	 * @since 2011-09-16, 0.1
 	 */
-	protected static $realnames = [];
+	protected static array $realnames = [];
 
 	/**
 	 * namespace regex option string.
@@ -55,7 +55,7 @@ class Realnames implements
 	 * @var string|null
 	 * @since 2011-09-16, 0.2
 	 */
-	protected static $namespacePrefixes = null;
+	protected static ?string $namespacePrefixes = null;
 
 	/**
 	 * namespace regex option string urlencoded.
@@ -63,7 +63,7 @@ class Realnames implements
 	 * @var string|null
 	 * @since 2019-03-10, 0.6
 	 */
-	protected static $namespacePrefixesEncoded = null;
+	protected static ?string $namespacePrefixesEncoded = null;
 
 	private Config $config;
 	private Language $lang;
@@ -89,7 +89,7 @@ class Realnames implements
 	 * @since 2011-09-16, 0.1
 	 * @see   lookForBare() for regex
 	 */
-	protected function checkBare( $matches ) {
+	protected function checkBare( array $matches ): string {
 		// matches come from self::lookForBare()'s regular expression
 		$m = [
 			'all' => $matches[0],
@@ -114,7 +114,7 @@ class Realnames implements
 	 * @since 2011-09-16, 0.1
 	 * @see   lookForBare() for regex
 	 */
-	protected function checkLink( $matches ) {
+	protected function checkLink( array $matches ): string {
 		// matches come from self::lookForLinks()'s regular expression
 		$m = [
 			'all' => $matches[0],
@@ -148,7 +148,7 @@ class Realnames implements
 	 *
 	 * @since 2019-01-24, 0.3.2
 	 */
-	protected static function debug( $method, $text ) {
+	protected static function debug( string $method, string $text ): void {
 		wfDebugLog( 'realnames', $method . ': ' . $text );
 	}
 
@@ -169,7 +169,7 @@ class Realnames implements
 	 * @see   $wgRealnamesStyles
 	 * @see   $wgRealnamesBlank
 	 */
-	protected function display( $m ) {
+	protected function display( array $m ): string {
 		// what kind of formatting will we do?
 		$style = $this->config->get( 'RealnamesLinkStyle' );
 		$styleBlankName = $this->config->get( 'RealnamesLinkStyleBlankName' );
@@ -245,7 +245,7 @@ class Realnames implements
 	 *
 	 * @since 2011-09-22, 0.2
 	 */
-	public function getNamespacePrefixes( $encode = false ) {
+	public function getNamespacePrefixes( bool $encode = false ): string {
 		if ( $encode ) {
 			$prefixes = self::$namespacePrefixesEncoded;
 		} else {
@@ -366,7 +366,7 @@ class Realnames implements
 	 * @param User $user
 	 * @param array &$userPageOpt
 	 */
-	private function transformUsernameToRealname( User $user, &$userPageOpt ): void {
+	private function transformUsernameToRealname( User $user, array &$userPageOpt ): void {
 		// replace the name of the logged-in user
 		if ( isset( $userPageOpt )
 			&& isset( $userPageOpt['text'] ) ) {
@@ -425,7 +425,7 @@ class Realnames implements
 	 *    we tend to just strip the User: and leave the username, but we only modify the
 	 *    first word so some weird style might screw it up (2011-09-17, ofb)
 	 */
-	protected function lookForBare( $text, $pattern = null ) {
+	protected function lookForBare( string $text, string $pattern = null ): string {
 		// considered doing [^<]+ here to catch names with spaces or underscores,
 		// which works for most titles but is not universal
 		$pattern ??= '/' . $this->getNamespacePrefixes() . '([^ \t]+)(\/.+)?/';
@@ -454,7 +454,7 @@ class Realnames implements
 	 *
 	 * @since 2011-09-16, 0.1
 	 */
-	protected function lookForLinks( $text, $pattern = null ) {
+	protected function lookForLinks( string $text, string $pattern = null ): string {
 		self::debug( __METHOD__, 'before: ' . $this->getNamespacePrefixes( false ) );
 		self::debug( __METHOD__, 'after: ' . $this->getNamespacePrefixes( true ) );
 		$pattern ??= '/(<a\b[^">]+href="[^">]+'
@@ -488,7 +488,7 @@ class Realnames implements
 	 *
 	 * @since 2011-09-16, 0.1
 	 */
-	protected function replace( $m ) {
+	protected function replace( array $m ): string {
 		$debug_msg = 'matched '
 			. ( $m['username'] ?? print_r( $m, true ) );
 		self::debug( __METHOD__, $debug_msg );
