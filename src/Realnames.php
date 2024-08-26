@@ -30,8 +30,8 @@ use Config;
 use Language;
 use MediaWiki\User\UserFactory;
 use OutputPage;
-use RequestContext;
 use Skin;
+use User;
 
 /**
  * >= 0.1
@@ -369,9 +369,10 @@ class Realnames implements
 	}
 
 	/**
+	 * @param User $user
 	 * @param array &$userPageOpt
 	 */
-	private function transformUsernameToRealname( &$userPageOpt ): void {
+	private function transformUsernameToRealname( User $user, &$userPageOpt ): void {
 		// replace the name of the logged-in user
 		if ( isset( $userPageOpt ) === true
 			&& isset( $userPageOpt['text'] ) === true ) {
@@ -379,7 +380,7 @@ class Realnames implements
 			$m = [
 				'all' => $userPageOpt['text'],
 				'username' => $userPageOpt['text'],
-				'realname' => RequestContext::getMain()->getUser()->getRealName(),
+				'realname' => $user->getRealName(),
 			];
 			$userPageOpt['text'] = $this->replace( $m );
 		}
@@ -409,10 +410,10 @@ class Realnames implements
 			// will cause it to be set to null, which will affect output
 			// for logged out users.
 			if ( isset( $links['user-page']['userpage'] ) ) {
-				$this->transformUsernameToRealname( $links['user-page']['userpage'] );
+				$this->transformUsernameToRealname( $skin->getUser(), $links['user-page']['userpage'] );
 			}
 			if ( isset( $links['user-menu']['userpage'] ) ) {
-				$this->transformUsernameToRealname( $links['user-menu']['userpage'] );
+				$this->transformUsernameToRealname( $skin->getUser(), $links['user-menu']['userpage'] );
 			}
 		}
 	}
