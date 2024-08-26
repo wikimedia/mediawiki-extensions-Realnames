@@ -379,7 +379,7 @@ class Realnames implements
 			$m = [
 				'all' => $userPageOpt['text'],
 				'username' => $userPageOpt['text'],
-				'realname' => RequestContext::getMain()->getAuthority()->getRealName(),
+				'realname' => RequestContext::getMain()->getUser()->getRealName(),
 			];
 			$userPageOpt['text'] = $this->replace( $m );
 		}
