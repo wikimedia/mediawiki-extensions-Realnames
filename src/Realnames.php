@@ -26,18 +26,18 @@ namespace MediaWiki\Extension\Realnames;
 	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-use Config;
-use Language;
+use MediaWiki\Config\Config;
+use MediaWiki\Language\Language;
+use MediaWiki\Output\OutputPage;
+use MediaWiki\User\User;
 use MediaWiki\User\UserFactory;
-use OutputPage;
 use Skin;
-use User;
 
 /**
  * >= 0.1
  */
 class Realnames implements
-	\MediaWiki\Hook\BeforePageDisplayHook,
+	\MediaWiki\Output\Hook\BeforePageDisplayHook,
 	\MediaWiki\Hook\SkinTemplateNavigation__UniversalHook
 {
 
