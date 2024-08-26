@@ -38,8 +38,8 @@
 		},
 		"RealnamesNamespaces": {}
 	},
-	"AutoloadClasses": {
-		"MediaWiki\\Extension\\Realnames\\Realnames": "src/Realnames.php"
+	"AutoloadNamespaces": {
+		"MediaWiki\\Extension\\Realnames\\": "src/"
 	},
 	"Hooks": {
 		"BeforePageDisplay": "\\MediaWiki\\Extension\\Realnames\\Realnames::hookBeforePageDisplay",
