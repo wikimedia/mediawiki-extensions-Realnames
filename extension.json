@@ -41,9 +41,14 @@
 	"AutoloadNamespaces": {
 		"MediaWiki\\Extension\\Realnames\\": "src/"
 	},
+	"HookHandlers": {
+		"main": {
+			"class": "\\MediaWiki\\Extension\\Realnames\\Realnames"
+		}
+	},
 	"Hooks": {
-		"BeforePageDisplay": "\\MediaWiki\\Extension\\Realnames\\Realnames::hookBeforePageDisplay",
-		"SkinTemplateNavigation::Universal": "\\MediaWiki\\Extension\\Realnames\\Realnames::onSkinTemplateNavigation__Universal"
+		"BeforePageDisplay": "main",
+		"SkinTemplateNavigation::Universal": "main"
 	},
 	"manifest_version": 1
 }

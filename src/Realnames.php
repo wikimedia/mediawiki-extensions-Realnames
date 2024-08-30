@@ -35,7 +35,10 @@ use User;
 /**
  * >= 0.1
  */
-class Realnames {
+class Realnames implements
+	\MediaWiki\Hook\BeforePageDisplayHook,
+	\MediaWiki\Hook\SkinTemplateNavigation__UniversalHook
+{
 
 	/**
 	 * A cache of realnames for given users.
@@ -305,17 +308,17 @@ class Realnames {
 	/**
 	 * >= 0.1, change all usernames to realnames.
 	 *
-	 * @param OutputPage &$out The OutputPage object.
-	 * @param Skin &$skin object that will be used to generate the page, added in 1.13.
+	 * @param OutputPage $out The OutputPage object.
+	 * @param Skin $skin object that will be used to generate the page, added in 1.13.
 	 *
-	 * @return bool true, continue hook processing
+	 * @return void
 	 *
 	 * @since 2011-09-16, 0.1
 	 * @note  OutputPageBeforeHTML does not work for Special pages like RecentChanges or ActiveUsers
 	 * @note  requires MediaWiki 1.7.0
-	 * @see   hook documentation http://www.mediawiki.org/wiki/Manual:Hooks/BeforePageDisplay
+	 * @see   hook documentation https://www.mediawiki.org/wiki/Manual:Hooks/BeforePageDisplay
 	 */
-	public static function hookBeforePageDisplay( &$out, &$skin = false ) {
+	public function onBeforePageDisplay( $out, $skin ): void {
 		$title = $out->getTitle();
 
 		if ( $GLOBALS['wgRealnamesReplacements']['title'] === true ) {
@@ -354,8 +357,6 @@ class Realnames {
 			self::debug( __METHOD__, 'searching article body...' );
 			$out->mBodytext = self::lookForLinks( $out->getHTML() );
 		}
-
-		return true;
 	}
 
 	/**
@@ -383,13 +384,13 @@ class Realnames {
 	 * @param array &$links
 	 * @phpcs:disable MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
 	 *
-	 * @return bool true, continue hook processing
+	 * @return void
 	 *
 	 * @since 2011-09-22, 0.2
-	 * @see   hook documentation http://www.mediawiki.org/wiki/Manual:Hooks/PersonalUrls
+	 * @see   hook documentation https://www.mediawiki.org/wiki/Manual:Hooks/SkinTemplateNavigation::Universal
 	 * @note  does nothing for Timeless skin
 	 */
-	public static function onSkinTemplateNavigation__Universal( $skin, &$links ) {
+	public function onSkinTemplateNavigation__Universal( $skin, &$links ): void {
 		// phpcs:enable MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
 		// using // phpcs:ignore after docblock doesn't work, it shows
 		// MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
@@ -405,8 +406,6 @@ class Realnames {
 				self::transformUsernameToRealname( $links['user-menu']['userpage'] );
 			}
 		}
-
-		return true;
 	}
 
 	/**
