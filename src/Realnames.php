@@ -174,21 +174,21 @@ class Realnames implements
 		$style = $this->config->get( 'RealnamesLinkStyle' );
 		$styleBlankName = $this->config->get( 'RealnamesLinkStyleBlankName' );
 		$styleSameName = $this->config->get( 'RealnamesLinkStyleSameName' );
-		if ( empty( $m['linkstart'] ) === true ) {
-			if ( $this->config->get( 'RealnamesBareStyle' ) !== false ) {
+		if ( !isset( $m['linkstart'] ) ) {
+			if ( $this->config->get( 'RealnamesBareStyle' ) ) {
 				$style = $this->config->get( 'RealnamesBareStyle' );
 			}
-			if ( $this->config->get( 'RealnamesBareStyleBlankName' ) !== false ) {
+			if ( $this->config->get( 'RealnamesBareStyleBlankName' ) ) {
 				$styleBlankName = $this->config->get( 'RealnamesBareStyleBlankName' );
 			}
-			if ( $this->config->get( 'RealnamesBareStyleSameName' ) !== false ) {
+			if ( $this->config->get( 'RealnamesBareStyleSameName' ) ) {
 				$styleSameName = $this->config->get( 'RealnamesBareStyleSameName' );
 			}
 			$m['linkstart'] = '';
 			$m['linkend'] = '';
 		}
 
-		if ( empty( $style ) === true ) {
+		if ( !$style ) {
 			// error
 			self::debug( __METHOD__, 'error, blank style configuration' );
 			return $m['all'];
@@ -197,22 +197,16 @@ class Realnames implements
 		// get the formatting code
 		$format = $this->config->get( 'RealnamesStyles' )[$style];
 
-		if ( empty( $style ) === true ) {
-			// error
-			self::debug( __METHOD__, 'error, blank format configuration' );
-			return $m['all'];
-		}
-
 		// we have a blank realname, and the admin doesn't want to see them,
 		// or his chosen format will not display a username at all
-		if ( empty( $m['realname'] ) === true && (
-			$this->config->get( 'RealnamesBlank' ) === false || strpos( $format, '$2' ) === false
+		if ( $m['realname'] === '' && (
+			!$this->config->get( 'RealnamesBlank' ) || strpos( $format, '$2' ) === false
 		) ) {
 			$format = $this->config->get( 'RealnamesStyles' )[$styleBlankName];
 		}
 
-		if ( $this->config->get( 'RealnamesSmart' ) !== false
-			&& $this->config->get( 'RealnamesSmart' )['same'] === true
+		if ( $this->config->get( 'RealnamesSmart' )
+			&& $this->config->get( 'RealnamesSmart' )['same']
 			&& $m['username'] === $m['realname']
 			&& strpos( $format, '$2' ) !== false
 			&& strpos( $format, '$3' ) !== false
@@ -252,7 +246,7 @@ class Realnames implements
 	 * @since 2011-09-22, 0.2
 	 */
 	public function getNamespacePrefixes( $encode = false ) {
-		if ( $encode === true ) {
+		if ( $encode ) {
 			$prefixes = self::$namespacePrefixesEncoded;
 		} else {
 			$prefixes = self::$namespacePrefixes;
@@ -280,7 +274,7 @@ class Realnames implements
 		$nss = $this->lang->getNamespaceAliases();
 
 		foreach ( $nss as $name => $space ) {
-			if ( in_array( $space, [ NS_USER, NS_USER_TALK ] ) === true ) {
+			if ( in_array( $space, [ NS_USER, NS_USER_TALK ] ) ) {
 				$namespaces[] = $name;
 			}
 		}
@@ -288,7 +282,7 @@ class Realnames implements
 		// clean up
 		$namespaces = array_unique( $namespaces );
 
-		if ( $encode === true ) {
+		if ( $encode ) {
 			$namespaces = array_map( 'urlencode', $namespaces );
 		}
 
@@ -305,7 +299,7 @@ class Realnames implements
 
 		self::debug( __METHOD__, 'namespace prefixes: ' . $prefixes );
 
-		if ( $encode === true ) {
+		if ( $encode ) {
 			self::$namespacePrefixesEncoded = $prefixes;
 		} else {
 			self::$namespacePrefixes = $prefixes;
@@ -330,13 +324,13 @@ class Realnames implements
 	public function onBeforePageDisplay( $out, $skin ): void {
 		$title = $out->getTitle();
 
-		if ( $this->config->get( 'RealnamesReplacements' )['title'] === true ) {
+		if ( $this->config->get( 'RealnamesReplacements' )['title'] ) {
 			// article title
 			self::debug( __METHOD__, 'searching article title...' );
 
 			// special user page handling
 			// User:
-			if ( in_array( $title->getNamespace(), [ NS_USER, NS_USER_TALK ] ) === true ) {
+			if ( in_array( $title->getNamespace(), [ NS_USER, NS_USER_TALK ] ) ) {
 				// swap out the specific username from title
 				// this overcomes the problem lookForBare has with spaces and underscores in names
 				$reg = '/'
@@ -355,13 +349,13 @@ class Realnames implements
 			$out->setPageTitle( $this->lookForBare( $out->getPageTitle() ) );
 		}
 
-		if ( $this->config->get( 'RealnamesReplacements' )['subtitle'] === true ) {
+		if ( $this->config->get( 'RealnamesReplacements' )['subtitle'] ) {
 			// subtitle (say, on revision pages)
 			self::debug( __METHOD__, 'searching article subtitle...' );
 			$out->setSubtitle( $this->lookForLinks( $out->getSubtitle() ) );
 		}
 
-		if ( $this->config->get( 'RealnamesReplacements' )['body'] === true ) {
+		if ( $this->config->get( 'RealnamesReplacements' )['body'] ) {
 			// article html text
 			self::debug( __METHOD__, 'searching article body...' );
 			$out->mBodytext = $this->lookForLinks( $out->getHTML() );
@@ -374,8 +368,8 @@ class Realnames implements
 	 */
 	private function transformUsernameToRealname( User $user, &$userPageOpt ): void {
 		// replace the name of the logged-in user
-		if ( isset( $userPageOpt ) === true
-			&& isset( $userPageOpt['text'] ) === true ) {
+		if ( isset( $userPageOpt )
+			&& isset( $userPageOpt['text'] ) ) {
 			// fake the match, we know it's there
 			$m = [
 				'all' => $userPageOpt['text'],
@@ -404,7 +398,7 @@ class Realnames implements
 		// phpcs:enable MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
 		// using // phpcs:ignore after docblock doesn't work, it shows
 		// MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
-		if ( $this->config->get( 'RealnamesReplacements' )['personnal'] === true ) {
+		if ( $this->config->get( 'RealnamesReplacements' )['personnal'] ) {
 			self::debug( __METHOD__, 'searching personnal urls...' );
 			// We check isset here, because the mere act of passing this
 			// will cause it to be set to null, which will affect output
@@ -422,7 +416,7 @@ class Realnames implements
 	 * scan and replace plain usernames of the form User:username into real names.
 	 *
 	 * @param string $text to scan
-	 * @param string $pattern to match, \bool false for default
+	 * @param string|null $pattern to match, null for default
 	 *
 	 * @return string with realnames replaced in
 	 *
@@ -431,12 +425,10 @@ class Realnames implements
 	 *    we tend to just strip the User: and leave the username, but we only modify the
 	 *    first word so some weird style might screw it up (2011-09-17, ofb)
 	 */
-	protected function lookForBare( $text, $pattern = false ) {
-		if ( empty( $pattern ) === true ) {
-			// considered doing [^<]+ here to catch names with spaces or underscores,
-			// which works for most titles but is not universal
-			$pattern = '/' . $this->getNamespacePrefixes() . '([^ \t]+)(\/.+)?/';
-		}
+	protected function lookForBare( $text, $pattern = null ) {
+		// considered doing [^<]+ here to catch names with spaces or underscores,
+		// which works for most titles but is not universal
+		$pattern ??= '/' . $this->getNamespacePrefixes() . '([^ \t]+)(\/.+)?/';
 
 		self::debug( __METHOD__, 'pattern: ' . $pattern );
 		// create_function is slow
@@ -456,22 +448,20 @@ class Realnames implements
 	 * scan and replace username links into realname links.
 	 *
 	 * @param string $text to scan
-	 * @param string $pattern to match, bool false for default
+	 * @param string|null $pattern to match, null for default
 	 *
 	 * @return string with realnames replaced in
 	 *
 	 * @since 2011-09-16, 0.1
 	 */
-	protected function lookForLinks( $text, $pattern = false ) {
+	protected function lookForLinks( $text, $pattern = null ) {
 		self::debug( __METHOD__, 'before: ' . $this->getNamespacePrefixes( false ) );
 		self::debug( __METHOD__, 'after: ' . $this->getNamespacePrefixes( true ) );
-		if ( empty( $pattern ) === true ) {
-			$pattern = '/(<a\b[^">]+href="[^">]+'
-				. $this->getNamespacePrefixes( true )
-				. '([^"\\?\\&>]+)[^>]+>(?:\s*<bdi>)?)'
-				. $this->getNamespacePrefixes()
-				. '?([^>]+)((?:<\\/bdi>)?<\\/a>)/';
-		}
+		$pattern ??= '/(<a\b[^">]+href="[^">]+'
+			. $this->getNamespacePrefixes( true )
+			. '([^"\\?\\&>]+)[^>]+>(?:\s*<bdi>)?)'
+			. $this->getNamespacePrefixes()
+			. '?([^>]+)((?:<\\/bdi>)?<\\/a>)/';
 
 		// create_function is slow
 		$preg = preg_replace_callback(
@@ -500,14 +490,12 @@ class Realnames implements
 	 */
 	protected function replace( $m ) {
 		$debug_msg = 'matched '
-			. ( ( isset( $m['username'] ) === true ) ? $m['username'] : print_r( $m, true ) );
+			. ( $m['username'] ?? print_r( $m, true ) );
 		self::debug( __METHOD__, $debug_msg );
 
-		if ( isset( self::$realnames[$m['username']] ) === false ) {
+		if ( !isset( self::$realnames[$m['username']] ) ) {
 			// we don't have it cached
-			$realname = null;
-
-			if ( isset( $m['realname'] ) === true ) {
+			if ( isset( $m['realname'] ) ) {
 				// we got it elsewhere
 				$realname = $m['realname'];
 			} else {
