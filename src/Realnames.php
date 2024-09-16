@@ -28,10 +28,10 @@ namespace MediaWiki\Extension\Realnames;
 
 use Config;
 use Language;
+use MediaWiki\User\UserFactory;
 use OutputPage;
 use RequestContext;
 use Skin;
-use User;
 
 /**
  * >= 0.1
@@ -67,13 +67,16 @@ class Realnames implements
 
 	private Config $config;
 	private Language $lang;
+	private UserFactory $userFactory;
 
 	public function __construct(
 		Config $config,
-		Language $lang
+		Language $lang,
+		UserFactory $userFactory
 	) {
 		$this->config = $config;
 		$this->lang = $lang;
+		$this->userFactory = $userFactory;
 	}
 
 	/**
@@ -508,9 +511,9 @@ class Realnames implements
 				$realname = $m['realname'];
 			} else {
 				// time to do a lookup
-				$user = User::newFromName( $m['username'] );
+				$user = $this->userFactory->newFromName( $m['username'] );
 
-				if ( is_object( $user ) === false ) {
+				if ( !$user ) {
 					self::debug( __METHOD__, 'skipped, invalid user: ' . $m['username'] );
 					return $m['all'];
 				}

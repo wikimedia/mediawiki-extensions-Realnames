@@ -46,7 +46,8 @@
 			"class": "\\MediaWiki\\Extension\\Realnames\\Realnames",
 			"services": [
 				"MainConfig",
-				"ContentLanguage"
+				"ContentLanguage",
+				"UserFactory"
 			]
 		}
 	},
