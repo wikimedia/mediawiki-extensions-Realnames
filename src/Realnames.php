@@ -26,6 +26,7 @@ namespace MediaWiki\Extension\Realnames;
 	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+use Config;
 use Language;
 use OutputPage;
 use RequestContext;
@@ -64,11 +65,14 @@ class Realnames implements
 	 */
 	protected static $namespacePrefixesEncoded = null;
 
+	private Config $config;
 	private Language $lang;
 
 	public function __construct(
+		Config $config,
 		Language $lang
 	) {
+		$this->config = $config;
 		$this->lang = $lang;
 	}
 
@@ -82,7 +86,7 @@ class Realnames implements
 	 * @since 2011-09-16, 0.1
 	 * @see   lookForBare() for regex
 	 */
-	protected static function checkBare( $matches ) {
+	protected function checkBare( $matches ) {
 		// matches come from self::lookForBare()'s regular expression
 		$m = [
 			'all' => $matches[0],
@@ -94,7 +98,7 @@ class Realnames implements
 		// we do not currently do any checks on Bare replacements, a User: find is
 		// always valid but we could add one in the future, and the debug
 		// information is still convenient and keeps things consistent with checkLink
-		return self::replace( $m );
+		return $this->replace( $m );
 	}
 
 	/**
@@ -107,7 +111,7 @@ class Realnames implements
 	 * @since 2011-09-16, 0.1
 	 * @see   lookForBare() for regex
 	 */
-	protected static function checkLink( $matches ) {
+	protected function checkLink( $matches ) {
 		// matches come from self::lookForLinks()'s regular expression
 		$m = [
 			'all' => $matches[0],
@@ -128,7 +132,7 @@ class Realnames implements
 			return $m['all'];
 		}
 
-		return self::replace( $m );
+		return $this->replace( $m );
 	}
 
 	/**
@@ -162,20 +166,20 @@ class Realnames implements
 	 * @see   $wgRealnamesStyles
 	 * @see   $wgRealnamesBlank
 	 */
-	protected static function display( $m ) {
+	protected function display( $m ) {
 		// what kind of formatting will we do?
-		$style = $GLOBALS['wgRealnamesLinkStyle'];
-		$styleBlankName = $GLOBALS['wgRealnamesLinkStyleBlankName'];
-		$styleSameName = $GLOBALS['wgRealnamesLinkStyleSameName'];
+		$style = $this->config->get( 'RealnamesLinkStyle' );
+		$styleBlankName = $this->config->get( 'RealnamesLinkStyleBlankName' );
+		$styleSameName = $this->config->get( 'RealnamesLinkStyleSameName' );
 		if ( empty( $m['linkstart'] ) === true ) {
-			if ( $GLOBALS['wgRealnamesBareStyle'] !== false ) {
-				$style = $GLOBALS['wgRealnamesBareStyle'];
+			if ( $this->config->get( 'RealnamesBareStyle' ) !== false ) {
+				$style = $this->config->get( 'RealnamesBareStyle' );
 			}
-			if ( $GLOBALS['wgRealnamesBareStyleBlankName'] !== false ) {
-				$styleBlankName = $GLOBALS['wgRealnamesBareStyleBlankName'];
+			if ( $this->config->get( 'RealnamesBareStyleBlankName' ) !== false ) {
+				$styleBlankName = $this->config->get( 'RealnamesBareStyleBlankName' );
 			}
-			if ( $GLOBALS['wgRealnamesBareStyleSameName'] !== false ) {
-				$styleSameName = $GLOBALS['wgRealnamesBareStyleSameName'];
+			if ( $this->config->get( 'RealnamesBareStyleSameName' ) !== false ) {
+				$styleSameName = $this->config->get( 'RealnamesBareStyleSameName' );
 			}
 			$m['linkstart'] = '';
 			$m['linkend'] = '';
@@ -188,7 +192,7 @@ class Realnames implements
 		}
 
 		// get the formatting code
-		$format = $GLOBALS['wgRealnamesStyles'][$style];
+		$format = $this->config->get( 'RealnamesStyles' )[$style];
 
 		if ( empty( $style ) === true ) {
 			// error
@@ -199,13 +203,13 @@ class Realnames implements
 		// we have a blank realname, and the admin doesn't want to see them,
 		// or his chosen format will not display a username at all
 		if ( empty( $m['realname'] ) === true && (
-			$GLOBALS['wgRealnamesBlank'] === false || strpos( $format, '$2' ) === false
+			$this->config->get( 'RealnamesBlank' ) === false || strpos( $format, '$2' ) === false
 		) ) {
-			$format = $GLOBALS['wgRealnamesStyles'][$styleBlankName];
+			$format = $this->config->get( 'RealnamesStyles' )[$styleBlankName];
 		}
 
-		if ( $GLOBALS['wgRealnamesSmart'] !== false
-			&& $GLOBALS['wgRealnamesSmart']['same'] === true
+		if ( $this->config->get( 'RealnamesSmart' ) !== false
+			&& $this->config->get( 'RealnamesSmart' )['same'] === true
 			&& $m['username'] === $m['realname']
 			&& strpos( $format, '$2' ) !== false
 			&& strpos( $format, '$3' ) !== false
@@ -217,7 +221,7 @@ class Realnames implements
 			// we're going to display: John - John
 			// this is silly. The smart thing to do
 			// is infact nothing (in the name)
-			$format = $GLOBALS['wgRealnamesStyles'][$styleSameName];
+			$format = $this->config->get( 'RealnamesStyles' )[$styleSameName];
 		}
 
 		// plug in our values to the format desired
@@ -264,7 +268,7 @@ class Realnames implements
 		];
 
 		// add in user specified ones
-		$namespaces = array_merge( $namespaces, array_values( $GLOBALS['wgRealnamesNamespaces'] ) );
+		$namespaces = array_merge( $namespaces, array_values( $this->config->get( 'RealnamesNamespaces' ) ) );
 
 		// user namespace's primary name in the wiki lang
 		$namespaces[] = $this->lang->getNsText( NS_USER );
@@ -323,7 +327,7 @@ class Realnames implements
 	public function onBeforePageDisplay( $out, $skin ): void {
 		$title = $out->getTitle();
 
-		if ( $GLOBALS['wgRealnamesReplacements']['title'] === true ) {
+		if ( $this->config->get( 'RealnamesReplacements' )['title'] === true ) {
 			// article title
 			self::debug( __METHOD__, 'searching article title...' );
 
@@ -348,13 +352,13 @@ class Realnames implements
 			$out->setPageTitle( $this->lookForBare( $out->getPageTitle() ) );
 		}
 
-		if ( $GLOBALS['wgRealnamesReplacements']['subtitle'] === true ) {
+		if ( $this->config->get( 'RealnamesReplacements' )['subtitle'] === true ) {
 			// subtitle (say, on revision pages)
 			self::debug( __METHOD__, 'searching article subtitle...' );
 			$out->setSubtitle( $this->lookForLinks( $out->getSubtitle() ) );
 		}
 
-		if ( $GLOBALS['wgRealnamesReplacements']['body'] === true ) {
+		if ( $this->config->get( 'RealnamesReplacements' )['body'] === true ) {
 			// article html text
 			self::debug( __METHOD__, 'searching article body...' );
 			$out->mBodytext = $this->lookForLinks( $out->getHTML() );
@@ -364,7 +368,7 @@ class Realnames implements
 	/**
 	 * @param array &$userPageOpt
 	 */
-	private static function transformUsernameToRealname( &$userPageOpt ): void {
+	private function transformUsernameToRealname( &$userPageOpt ): void {
 		// replace the name of the logged-in user
 		if ( isset( $userPageOpt ) === true
 			&& isset( $userPageOpt['text'] ) === true ) {
@@ -374,7 +378,7 @@ class Realnames implements
 				'username' => $userPageOpt['text'],
 				'realname' => RequestContext::getMain()->getAuthority()->getRealName(),
 			];
-			$userPageOpt['text'] = self::replace( $m );
+			$userPageOpt['text'] = $this->replace( $m );
 		}
 	}
 
@@ -396,16 +400,16 @@ class Realnames implements
 		// phpcs:enable MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
 		// using // phpcs:ignore after docblock doesn't work, it shows
 		// MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
-		if ( $GLOBALS['wgRealnamesReplacements']['personnal'] === true ) {
+		if ( $this->config->get( 'RealnamesReplacements' )['personnal'] === true ) {
 			self::debug( __METHOD__, 'searching personnal urls...' );
 			// We check isset here, because the mere act of passing this
 			// will cause it to be set to null, which will affect output
 			// for logged out users.
 			if ( isset( $links['user-page']['userpage'] ) ) {
-				self::transformUsernameToRealname( $links['user-page']['userpage'] );
+				$this->transformUsernameToRealname( $links['user-page']['userpage'] );
 			}
 			if ( isset( $links['user-menu']['userpage'] ) ) {
-				self::transformUsernameToRealname( $links['user-menu']['userpage'] );
+				$this->transformUsernameToRealname( $links['user-menu']['userpage'] );
 			}
 		}
 	}
@@ -435,7 +439,7 @@ class Realnames implements
 		$ret = preg_replace_callback(
 			$pattern,
 			[
-				__CLASS__,
+				$this,
 				'checkBare',
 			],
 			$text
@@ -469,7 +473,7 @@ class Realnames implements
 		$preg = preg_replace_callback(
 			$pattern,
 			[
-				__CLASS__,
+				$this,
 				'checkLink',
 			],
 			$text
@@ -490,7 +494,7 @@ class Realnames implements
 	 *
 	 * @since 2011-09-16, 0.1
 	 */
-	protected static function replace( $m ) {
+	protected function replace( $m ) {
 		$debug_msg = 'matched '
 			. ( ( isset( $m['username'] ) === true ) ? $m['username'] : print_r( $m, true ) );
 		self::debug( __METHOD__, $debug_msg );
@@ -520,6 +524,6 @@ class Realnames implements
 		// this may be blank
 		$m['realname'] = self::$realnames[$m['username']];
 
-		return self::display( $m );
+		return $this->display( $m );
 	}
 }
