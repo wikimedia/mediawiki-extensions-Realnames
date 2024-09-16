@@ -7,7 +7,7 @@
 	"description": "Displays a user's real name everywhere",
 	"license-name": "BSD-2-Clause",
 	"requires": {
-		"MediaWiki": ">= 1.39.0"
+		"MediaWiki": ">= 1.43.0"
 	},
 	"config": {
 		"RealnamesLinkStyle": "paren-reverse",
