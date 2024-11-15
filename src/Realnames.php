@@ -425,7 +425,7 @@ class Realnames implements
 	 *    we tend to just strip the User: and leave the username, but we only modify the
 	 *    first word so some weird style might screw it up (2011-09-17, ofb)
 	 */
-	protected function lookForBare( string $text, string $pattern = null ): string {
+	protected function lookForBare( string $text, ?string $pattern = null ): string {
 		// considered doing [^<]+ here to catch names with spaces or underscores,
 		// which works for most titles but is not universal
 		$pattern ??= '/' . $this->getNamespacePrefixes() . '([^ \t]+)(\/.+)?/';
@@ -454,7 +454,7 @@ class Realnames implements
 	 *
 	 * @since 2011-09-16, 0.1
 	 */
-	protected function lookForLinks( string $text, string $pattern = null ): string {
+	protected function lookForLinks( string $text, ?string $pattern = null ): string {
 		self::debug( __METHOD__, 'before: ' . $this->getNamespacePrefixes( false ) );
 		self::debug( __METHOD__, 'after: ' . $this->getNamespacePrefixes( true ) );
 		$pattern ??= '/(<a\b[^">]+href="[^">]+'
