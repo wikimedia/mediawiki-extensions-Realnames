@@ -207,7 +207,7 @@ class Realnames implements
 
 		if ( $this->config->get( 'RealnamesSmart' )
 			&& $this->config->get( 'RealnamesSmart' )['same']
-			&& $m['username'] === $m['realname']
+			&& $m['username'] === ( $m['realname'] ?? '' )
 			&& strpos( $format, '$2' ) !== false
 			&& strpos( $format, '$3' ) !== false
 		) {
@@ -226,7 +226,7 @@ class Realnames implements
 		$text = wfMsgReplaceArgs( $format, [
 			$m['linkstart'],
 			str_replace( '_', ' ', $m['username'] ),
-			str_replace( '_', ' ', $m['realname'] ),
+			str_replace( '_', ' ', ( $m['realname'] ?? '' ) ),
 			$m['linkend'],
 		] );
 
@@ -368,8 +368,7 @@ class Realnames implements
 	 */
 	private function transformUsernameToRealname( User $user, array &$userPageOpt ): void {
 		// replace the name of the logged-in user
-		if ( isset( $userPageOpt )
-			&& isset( $userPageOpt['text'] ) ) {
+		if ( isset( $userPageOpt['text'] ) ) {
 			// fake the match, we know it's there
 			$m = [
 				'all' => $userPageOpt['text'],
@@ -484,7 +483,7 @@ class Realnames implements
 	 *    \li<em>realname</em> (optional)
 	 *    \li<em>linkend</em> (optional)
 	 *
-	 * @return \string formatted text to replace the match with
+	 * @return string formatted text to replace the match with
 	 *
 	 * @since 2011-09-16, 0.1
 	 */
