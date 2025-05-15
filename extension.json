@@ -43,7 +43,7 @@
 	},
 	"HookHandlers": {
 		"main": {
-			"class": "\\MediaWiki\\Extension\\Realnames\\Realnames",
+			"class": "MediaWiki\\Extension\\Realnames\\Realnames",
 			"services": [
 				"MainConfig",
 				"ContentLanguage",
