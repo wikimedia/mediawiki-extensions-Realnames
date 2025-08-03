@@ -65,18 +65,11 @@ class Realnames implements
 	 */
 	protected static ?string $namespacePrefixesEncoded = null;
 
-	private Config $config;
-	private Language $lang;
-	private UserFactory $userFactory;
-
 	public function __construct(
-		Config $config,
-		Language $lang,
-		UserFactory $userFactory
+		private readonly Config $config,
+		private readonly Language $lang,
+		private readonly UserFactory $userFactory,
 	) {
-		$this->config = $config;
-		$this->lang = $lang;
-		$this->userFactory = $userFactory;
 	}
 
 	/**
