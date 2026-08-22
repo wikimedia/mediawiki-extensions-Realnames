@@ -29,16 +29,16 @@ namespace MediaWiki\Extension\Realnames;
 use MediaWiki\Config\Config;
 use MediaWiki\Language\Language;
 use MediaWiki\Output\OutputPage;
+use MediaWiki\Skin\Skin;
 use MediaWiki\User\User;
 use MediaWiki\User\UserFactory;
-use Skin;
 
 /**
  * >= 0.1
  */
 class Realnames implements
 	\MediaWiki\Output\Hook\BeforePageDisplayHook,
-	\MediaWiki\Hook\SkinTemplateNavigation__UniversalHook
+	\MediaWiki\Skin\Hook\SkinTemplateNavigation__UniversalHook
 {
 
 	/**
